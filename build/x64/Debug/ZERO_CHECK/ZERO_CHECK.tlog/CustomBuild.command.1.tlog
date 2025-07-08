@@ -1,0 +1,10 @@
+^C:\DEV\MYCROWAPP\BUILD\CMAKEFILES\2F1F0BB74FE2AC45BF594A51D4AC0B07\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/dev/MyCrowApp -BC:/dev/MyCrowApp/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/dev/MyCrowApp/build/MyCrowApp.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

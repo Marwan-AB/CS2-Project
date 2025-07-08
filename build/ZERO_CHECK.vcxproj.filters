@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\dev\MyCrowApp\build\CMakeFiles\2f1f0bb74fe2ac45bf594a51d4ac0b07\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{96E517F4-B276-3210-9206-8C7FCA0E0D1C}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/dev/MyCrowApp/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

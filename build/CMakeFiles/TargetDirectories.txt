@@ -1,0 +1,3 @@
+C:/dev/MyCrowApp/build/CMakeFiles/MyCrowApp.dir
+C:/dev/MyCrowApp/build/CMakeFiles/ALL_BUILD.dir
+C:/dev/MyCrowApp/build/CMakeFiles/ZERO_CHECK.dir

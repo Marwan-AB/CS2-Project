@@ -1,0 +1,54 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login / Signup</title>
+</head>
+<body>
+    <h2>Signup</h2>
+    <form id="signupForm">
+        Username: <input type="text" name="username"><br>
+        Password: <input type="password" name="password"><br>
+        <button type="submit">Sign Up</button>
+    </form>
+
+    <h2>Login</h2>
+    <form id="loginForm">
+        Username: <input type="text" name="username"><br>
+        Password: <input type="password" name="password"><br>
+        <button type="submit">Log In</button>
+    </form>
+
+    <p id="response"></p>
+
+    <script>
+        async function postData(url, data) {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const text = await res.text();
+            document.getElementById('response').innerText = text;
+        }
+
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = e.target;
+            postData('/signup', {
+                username: form.username.value,
+                password: form.password.value
+            });
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = e.target;
+            postData('/login', {
+                username: form.username.value,
+                password: form.password.value
+            });
+        });
+    </script>
+</body>
+</html>

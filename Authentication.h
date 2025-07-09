@@ -13,14 +13,13 @@ private:
     unordered_map<string, User*> users;
     unordered_map<string, User*> sessions;
 
-    string hashPassword(const string& pwd) {
+    string hashPassword(const string& pass) {
         hash<string> hasher;
-        return to_string(hasher(pwd));
+        return to_string(hasher(pass));
     }
 
     string generateSessionID() {
-        static const char charset[] =
-            "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        static const char charset[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         string sessionID;
         for (int i = 0; i < 16; ++i)
             sessionID += charset[rand() % (sizeof(charset) - 1)];
@@ -53,17 +52,17 @@ public:
         for (auto& p : users) delete p.second;
     }
 
-    bool registerUser(const string& uname, const string& pwd) {
+    bool registerUser(const string& uname, const string& pass) {
         if (users.count(uname)) return false;
-        string hash = hashPassword(pwd);
+        string hash = hashPassword(pass);
         users[uname] = new User(uname, hash);
         saveUserToFile(uname, hash);
         return true;
     }
 
-    string login(const string& uname, const string& pwd) {
+    string login(const string& uname, const string& pass) {
         if (!users.count(uname)) return "";
-        string hash = hashPassword(pwd);
+        string hash = hashPassword(pass);
         if (!users[uname]->verifyPassword(hash)) return "";
 
         string sid = generateSessionID();

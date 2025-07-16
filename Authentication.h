@@ -82,4 +82,8 @@ public:
     User* getUserBySession(const string& sid) {
         return sessions.count(sid) ? sessions.at(sid) : nullptr;
     }
+
+    void clearAllSessions() {
+    sessions.clear(); // Simple version for now
+    }
 };

@@ -102,11 +102,11 @@
             });
 
             if (res.status === 200) {
-                window.location.href = "/home";  // ✅ redirect here!
-            } else {
-                const text = await res.text();
-                document.getElementById('response').innerText = text;
+                const json = await res.json();
+                localStorage.setItem("sessionID", json.sessionID); 
+                window.location.href = "/home";
             }
+
         }
 
         document.getElementById('signupForm').addEventListener('submit', function(e) {

@@ -55,15 +55,25 @@ int main() {
 
     string sid = auth.login(uname, pwd);
     if (!sid.empty()) {
-        crow::response res;
-        res.code = 200;
-        res.set_header("Content-Type", "application/json");
-        res.body = R"({"status":"ok"})";  // tell JavaScript to redirect
-        return res;
+        crow::json::wvalue res;
+        res["status"] = "ok";
+        res["sessionID"] = sid;
+        return crow::response{res};
     } else {
         return crow::response(401, "Invalid credentials");
     }
 });
+
+    CROW_ROUTE(app, "/logout").methods("POST"_method)([&auth](const crow::request& req) {
+    auto body = crow::json::load(req.body);
+    if (!body || !body.has("sessionID"))
+        return crow::response(400, "Missing sessionID");
+
+    string sid = body["sessionID"].s();
+    auth.logout(sid);
+    return crow::response(200);
+});
+
 
     app.port(18080).multithreaded().run();
 }

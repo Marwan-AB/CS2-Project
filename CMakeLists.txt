@@ -8,6 +8,8 @@ find_package(Crow CONFIG REQUIRED)
 # Include current directory for header files
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+add_definitions(-D_WIN32_WINNT=0x0601)
+
 # Add more .cpp files if needed later
 add_executable(MyCrowApp
     main.cpp

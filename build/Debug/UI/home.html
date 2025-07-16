@@ -45,7 +45,7 @@
     <div class="btn-group">
         <button>Timeline</button>
         <button>Friends</button>
-        <button>New Post</button>
+        <button onclick="goToNewPost()">New Post</button>
         <button>Notifications</button>
         <button onclick="logout()">Logout</button>
     </div>
@@ -64,6 +64,21 @@
                 window.location.href = "/";
             });
         }
+         function goToNewPost() {
+        window.location.href = "/newpost";
+    }
+
+    function logout() {
+        const sessionID = localStorage.getItem("sessionID");
+        fetch("/logout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sessionID })
+        }).then(() => {
+            localStorage.removeItem("sessionID");
+            window.location.href = "/";
+        });
+    }
 
     </script>
 </body>

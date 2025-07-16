@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to MyCrowApp</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(120deg, #74ebd5, #9face6);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #4a4a4a;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"], input[type="password"] {
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #6c63ff;
+            outline: none;
+        }
+
+        button {
+            background: #6c63ff;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-top: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #574b90;
+        }
+
+        .message {
+            font-size: 14px;
+            margin-top: 10px;
+            color: #ff3860;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MyCrowApp</h1>
+
+        <form id="signupForm">
+            <h3>Sign Up</h3>
+            <input type="text" name="username" placeholder="Username" required />
+            <input type="password" name="password" placeholder="Password" required />
+            <button type="submit">Create Account</button>
+        </form>
+
+        <form id="loginForm">
+            <h3>Log In</h3>
+            <input type="text" name="username" placeholder="Username" required />
+            <input type="password" name="password" placeholder="Password" required />
+            <button type="submit">Log In</button>
+        </form>
+
+        <div class="message" id="response"></div>
+    </div>
+
+    <script>
+        async function postData(url, data) {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const text = await res.text();
+            document.getElementById('response').innerText = text;
+        }
+
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = e.target;
+            postData('/signup', {
+                username: form.username.value,
+                password: form.password.value
+            });
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = e.target;
+            postData('/login', {
+                username: form.username.value,
+                password: form.password.value
+            });
+        });
+    </script>
+</body>
+</html>

@@ -13,6 +13,7 @@ add_definitions(-D_WIN32_WINNT=0x0601)
 # Add more .cpp files if needed later
 add_executable(MyCrowApp
     main.cpp
+    AVLTree.tpp
 )
 
 add_custom_command(TARGET MyCrowApp POST_BUILD

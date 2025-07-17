@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Friends</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f8ff;
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            background: #fff;
+        }
+
+        input, button {
+            margin: 5px;
+            padding: 8px 16px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Friend Management</h1>
+
+    <div class="section">
+        <h2>Send Friend Request</h2>
+        <input type="text" id="targetUsername" placeholder="Username">
+        <button onclick="sendRequest()">Send</button>
+    </div>
+
+    <div class="section">
+        <h2>Received Requests</h2>
+        <ul id="receivedList"></ul>
+    </div>
+
+    <div class="section">
+        <h2>Sent Requests</h2>
+        <ul id="sentList"></ul>
+    </div>
+
+    <div class="section">
+        <h2>Friends</h2>
+        <ul id="friendsList"></ul>
+    </div>
+
+    <div class="section">
+        <h2>Suggestions</h2>
+        <ul id="suggestionsList"></ul>
+    </div>
+
+    <button onclick="location.href='/home.html'">Back to Home</button>
+
+    <script>
+        const sessionID = localStorage.getItem("sessionID");
+
+        function sendRequest() {
+            const target = document.getElementById("targetUsername").value;
+            fetch("/friends/send", {
+                method: "POST",
+                body: JSON.stringify({ sessionID, target })
+            }).then(loadAll);
+        }
+
+        function accept(user) {
+            fetch("/friends/accept", {
+                method: "POST",
+                body: JSON.stringify({ sessionID, from: user })
+            }).then(loadAll);
+        }
+
+        function reject(user) {
+            fetch("/friends/reject", {
+                method: "POST",
+                body: JSON.stringify({ sessionID, from: user })
+            }).then(loadAll);
+        }
+
+        function cancel(user) {
+            fetch("/friends/cancel", {
+                method: "POST",
+                body: JSON.stringify({ sessionID, to: user })
+            }).then(loadAll);
+        }
+
+        function loadAll() {
+            fetch("/friends/requests", {
+                method: "POST",
+                body: JSON.stringify({ sessionID })
+            })
+            .then(r => r.json())
+            .then(data => {
+                const received = data.received || [];
+                const sent = data.sent || [];
+
+                const rList = document.getElementById("receivedList");
+                const sList = document.getElementById("sentList");
+
+                rList.innerHTML = "";
+                sList.innerHTML = "";
+
+                received.forEach(u => {
+                    rList.innerHTML += `<li>${u} <button onclick="accept('${u}')">Accept</button> <button onclick="reject('${u}')">Reject</button></li>`;
+                });
+
+                sent.forEach(u => {
+                    sList.innerHTML += `<li>${u} <button onclick="cancel('${u}')">Cancel</button></li>`;
+                });
+            });
+
+            fetch("/friends/list", {
+                method: "POST",
+                body: JSON.stringify({ sessionID })
+            })
+            .then(r => r.json())
+            .then(data => {
+                const fList = document.getElementById("friendsList");
+                const friends = data.friends || [];
+                fList.innerHTML = "";
+                friends.forEach(u => {
+                    fList.innerHTML += `<li>${u}</li>`;
+                });
+            });
+
+            fetch("/friends/suggest", {
+                method: "POST",
+                body: JSON.stringify({ sessionID })
+            })
+            .then(r => r.json())
+            .then(data => {
+                const sList = document.getElementById("suggestionsList");
+                const suggestions = data.suggestions || [];
+                sList.innerHTML = "";
+                suggestions.forEach(u => {
+                    sList.innerHTML += `<li>${u}</li>`;
+                });
+            });
+        }
+
+        loadAll();
+    </script>
+</body>
+</html>

@@ -9,6 +9,9 @@
     <CustomBuild Include="C:\dev\MyCrowApp\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="C:\dev\MyCrowApp\AVLTree.tpp" />
+  </ItemGroup>
+  <ItemGroup>
     <Filter Include="Source Files">
       <UniqueIdentifier>{F3CBE7E5-150F-39CE-BA7E-3B9BFC5607D5}</UniqueIdentifier>
     </Filter>

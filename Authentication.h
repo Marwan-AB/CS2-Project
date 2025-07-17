@@ -84,6 +84,13 @@ public:
     }
 
     void clearAllSessions() {
-    sessions.clear(); // Simple version for now
+    sessions.clear(); 
     }
+
+    unordered_map<string, User*>& getAllUsers() {
+    return users;
+}
+User* getUserByUsername(const string& uname) {
+    return users.count(uname) ? users.at(uname) : nullptr;
+}
 };

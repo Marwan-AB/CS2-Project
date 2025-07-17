@@ -1,5 +1,6 @@
 #include <crow.h>
 #include "Authentication.h"
+#include "User.h"
 #include <fstream>
 #include <sstream>
 #include <filesystem>
@@ -133,6 +134,136 @@ CROW_ROUTE(app, "/user_posts")
     }
 
     return crow::response(postList);
+});
+
+CROW_ROUTE(app, "/friends/send").methods("POST"_method)([&auth](const crow::request& req){
+    auto body = crow::json::load(req.body);
+    string sid = body["sessionID"].s();
+    string target = body["target"].s();
+
+    User* sender = auth.getUserBySession(sid);
+    User* receiver = auth.getUserByUsername(target);
+    if (!sender || !receiver) return crow::response(400);
+
+    sender->sendFriendRequest(receiver);
+    return crow::response(200);
+});
+
+CROW_ROUTE(app, "/friends/accept").methods("POST"_method)([&auth](const crow::request& req){
+    auto body = crow::json::load(req.body);
+    string sid = body["sessionID"].s();
+    string from = body["from"].s();
+
+    User* user = auth.getUserBySession(sid);
+    User* other = auth.getUserByUsername(from);
+    if (!user || !other) return crow::response(400);
+
+    user->acceptFriendRequest(other);
+    return crow::response(200);
+});
+
+CROW_ROUTE(app, "/friends/reject").methods("POST"_method)([&auth](const crow::request& req){
+    auto body = crow::json::load(req.body);
+    string sid = body["sessionID"].s();
+    string from = body["from"].s();
+
+    User* user = auth.getUserBySession(sid);
+    User* other = auth.getUserByUsername(from);
+    if (!user || !other) return crow::response(400);
+
+    user->rejectFriendRequest(other);
+    return crow::response(200);
+});
+
+CROW_ROUTE(app, "/friends/cancel").methods("POST"_method)([&auth](const crow::request& req){
+    auto body = crow::json::load(req.body);
+    string sid = body["sessionID"].s();
+    string to = body["to"].s();
+
+    User* user = auth.getUserBySession(sid);
+    User* other = auth.getUserByUsername(to);
+    if (!user || !other) return crow::response(400);
+
+    user->cancelFriendRequest(other);
+    return crow::response(200);
+});
+
+CROW_ROUTE(app, "/friends/list").methods("POST"_method)([&auth](const crow::request& req){
+    auto body = crow::json::load(req.body);
+    string sid = body["sessionID"].s();
+
+    User* user = auth.getUserBySession(sid);
+    if (!user) return crow::response(400);
+
+    vector<string> list = user->getFriendList();
+    crow::json::wvalue res;
+    for (size_t i = 0; i < list.size(); ++i)
+        res["friends"][(int)i] = list[i];
+
+    return crow::response(res);
+});
+
+CROW_ROUTE(app, "/friends/requests").methods("POST"_method)([&auth](const crow::request& req){
+    auto body = crow::json::load(req.body);
+    string sid = body["sessionID"].s();
+
+    User* user = auth.getUserBySession(sid);
+    if (!user) return crow::response(400);
+
+    crow::json::wvalue res;
+    auto sent = user->getSentRequests();
+    auto recv = user->getReceivedRequests();
+
+    for (size_t i = 0; i < sent.size(); ++i)
+        res["sent"][(int)i] = sent[i];
+    for (size_t i = 0; i < recv.size(); ++i)
+        res["received"][(int)i] = recv[i];
+
+    return crow::response(res);
+});
+
+CROW_ROUTE(app, "/friends/mutual").methods("POST"_method)([&auth](const crow::request& req){
+    auto body = crow::json::load(req.body);
+    string sid = body["sessionID"].s();
+    string other = body["user"].s();
+
+    User* user1 = auth.getUserBySession(sid);
+    User* user2 = auth.getUserByUsername(other);
+    if (!user1 || !user2) return crow::response(400);
+
+    int count = user1->mutualFriendCount(user2);
+    crow::json::wvalue res;
+    res["count"] = count;
+    return crow::response(res);
+});
+
+CROW_ROUTE(app, "/friends/suggest").methods("POST"_method)([&auth](const crow::request& req){
+    auto body = crow::json::load(req.body);
+    string sid = body["sessionID"].s();
+
+    User* user = auth.getUserBySession(sid);
+    if (!user) return crow::response(400);
+
+    auto suggestions = user->suggestFriends(auth.getAllUsers());
+    crow::json::wvalue res;
+    for (size_t i = 0; i < suggestions.size(); ++i)
+        res["suggestions"][(int)i] = suggestions[i];
+
+    return crow::response(res);
+});
+
+CROW_ROUTE(app, "/friends")
+([]{
+    ifstream file("UI/friends.html");
+    stringstream buffer;
+    buffer << file.rdbuf();
+    file.close();
+
+    crow::response res;
+    res.code = 200;
+    res.set_header("Content-Type", "text/html");
+    res.body = buffer.str();
+    return res;
 });
 
     app.port(18080).multithreaded().run();

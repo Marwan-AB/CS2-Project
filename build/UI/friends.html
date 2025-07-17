@@ -133,6 +133,13 @@
             }).then(loadAll);
         }
 
+        function removeFriend(user) {
+            fetch("/friends/remove", {
+                method: "POST",
+                body: JSON.stringify({ sessionID, username: user })
+            }).then(loadAll);
+        }
+
         function loadAll() {
             fetch("/friends/requests", {
                 method: "POST",
@@ -163,7 +170,7 @@
                 const fList = document.getElementById("friendsList");
                 fList.innerHTML = "";
                 (data.friends || []).forEach(u => {
-                    fList.innerHTML += `<li>${u}</li>`;
+                    fList.innerHTML += `<li>${u} <button onclick="removeFriend('${u}')">Remove</button></li>`;
                 });
             });
 
@@ -185,5 +192,6 @@
     </script>
 </body>
 </html>
+
 
 

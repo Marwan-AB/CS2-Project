@@ -291,5 +291,20 @@ CROW_ROUTE(app, "/friends")
     return res;
 });
 
+CROW_ROUTE(app, "/friends/remove").methods("POST"_method)([&auth](const crow::request& req) {
+    auto body = crow::json::load(req.body);
+    if (!body) return crow::response(400);
+    string sessionID = body["sessionID"].s();
+    string friendName = body["username"].s();
+
+    User* user = auth.getUserBySession(sessionID);
+    User* target = auth.getUserByUsername(friendName);
+    if (!user || !target) return crow::response(404);
+    
+    user->removeFriend(target);
+    target->removeFriend(user); // Just in case removeFriend doesn't handle symmetry
+    return crow::response(200);
+});
+
     app.port(18080).multithreaded().run();
 }

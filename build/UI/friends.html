@@ -36,6 +36,12 @@
         li {
             margin: 5px 0;
         }
+
+        #searchResults li {
+            background: #f5f5f5;
+            padding: 8px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -43,8 +49,8 @@
 
     <div class="section">
         <h2>Send Friend Request</h2>
-        <input type="text" id="targetUsername" placeholder="Username">
-        <button onclick="sendRequest()">Send</button>
+        <input type="text" id="targetUsername" placeholder="Search username..." oninput="searchUsers()" autocomplete="off">
+        <ul id="searchResults"></ul>
     </div>
 
     <div class="section">
@@ -72,12 +78,38 @@
     <script>
         const sessionID = localStorage.getItem("sessionID");
 
-        function sendRequest() {
-            const target = document.getElementById("targetUsername").value;
+        function sendDirect(username) {
             fetch("/friends/send", {
                 method: "POST",
-                body: JSON.stringify({ sessionID, target })
-            }).then(loadAll);
+                body: JSON.stringify({ sessionID, target: username })
+            }).then(() => {
+                document.getElementById("searchResults").innerHTML = "";
+                document.getElementById("targetUsername").value = "";
+                loadAll();
+            });
+        }
+
+        function searchUsers() {
+            const query = document.getElementById("targetUsername").value.trim();
+            if (query === "") {
+                document.getElementById("searchResults").innerHTML = "";
+                return;
+            }
+
+            fetch("/friends/search", {
+                method: "POST",
+                body: JSON.stringify({ sessionID, query })
+            })
+            .then(r => r.json())
+            .then(data => {
+                const list = document.getElementById("searchResults");
+                list.innerHTML = "";
+                (data.matches || []).forEach(user => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `${user} <button onclick="sendDirect('${user}')">Send</button>`;
+                    list.appendChild(li);
+                });
+            });
         }
 
         function accept(user) {
@@ -108,20 +140,16 @@
             })
             .then(r => r.json())
             .then(data => {
-                const received = data.received || [];
-                const sent = data.sent || [];
-
                 const rList = document.getElementById("receivedList");
                 const sList = document.getElementById("sentList");
-
                 rList.innerHTML = "";
                 sList.innerHTML = "";
 
-                received.forEach(u => {
+                (data.received || []).forEach(u => {
                     rList.innerHTML += `<li>${u} <button onclick="accept('${u}')">Accept</button> <button onclick="reject('${u}')">Reject</button></li>`;
                 });
 
-                sent.forEach(u => {
+                (data.sent || []).forEach(u => {
                     sList.innerHTML += `<li>${u} <button onclick="cancel('${u}')">Cancel</button></li>`;
                 });
             });
@@ -133,9 +161,8 @@
             .then(r => r.json())
             .then(data => {
                 const fList = document.getElementById("friendsList");
-                const friends = data.friends || [];
                 fList.innerHTML = "";
-                friends.forEach(u => {
+                (data.friends || []).forEach(u => {
                     fList.innerHTML += `<li>${u}</li>`;
                 });
             });
@@ -147,10 +174,9 @@
             .then(r => r.json())
             .then(data => {
                 const sList = document.getElementById("suggestionsList");
-                const suggestions = data.suggestions || [];
                 sList.innerHTML = "";
-                suggestions.forEach(u => {
-                    sList.innerHTML += `<li>${u}</li>`;
+                (data.suggestions || []).forEach(u => {
+                    sList.innerHTML += `<li>${u} <button onclick="sendDirect('${u}')">Send</button></li>`;
                 });
             });
         }
@@ -159,3 +185,5 @@
     </script>
 </body>
 </html>
+
+

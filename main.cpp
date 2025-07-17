@@ -149,6 +149,31 @@ CROW_ROUTE(app, "/friends/send").methods("POST"_method)([&auth](const crow::requ
     return crow::response(200);
 });
 
+CROW_ROUTE(app, "/friends/search").methods("POST"_method)([&auth](const crow::request& req) {
+    auto body = crow::json::load(req.body);
+    if (!body) return crow::response(400);
+    
+    string sessionID = body["sessionID"].s();
+    string query = body["query"].s();
+    User* user = auth.getUserBySession(sessionID);
+    if (!user) return crow::response(401);
+
+    auto allUsers = auth.getAllUsers(); 
+    vector<string> matches = user->searchUsersByPrefix(query, allUsers);
+
+    crow::json::wvalue res;
+    std::vector<crow::json::wvalue> matchList;
+
+    for (const string& name : matches) {
+        matchList.emplace_back(name);
+    }
+
+    res["matches"] = std::move(matchList); // Assign the vector directly
+    return crow::response{res};
+});
+
+
+
 CROW_ROUTE(app, "/friends/accept").methods("POST"_method)([&auth](const crow::request& req){
     auto body = crow::json::load(req.body);
     string sid = body["sessionID"].s();

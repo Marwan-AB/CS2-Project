@@ -46,6 +46,10 @@ private:
 public:
     Authentication() {
         loadUsersFromFile();
+        for (auto& [uname, user] : users) {
+            user->loadFriendDataFromFile();
+        }
+
     }
 
     ~Authentication() {
@@ -87,10 +91,18 @@ public:
     sessions.clear(); 
     }
 
-    unordered_map<string, User*>& getAllUsers() {
-    return users;
-}
+    unordered_map<string, User*>& getAllUsers() {return users;}
+    
 User* getUserByUsername(const string& uname) {
     return users.count(uname) ? users.at(uname) : nullptr;
 }
+
+vector<string> searchUsersBySubstring(const string& part) {
+    vector<string> result;
+    for (auto& [uname, _] : users)
+        if (uname.find(part) != string::npos)
+            result.push_back(uname);
+    return result;
+}
+
 };

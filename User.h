@@ -61,12 +61,12 @@ public:
     }
 
     void User::sendFriendRequest(User* other) {
-    if (!other || other->Username == Username || friends.contains(other->Username))
-        return;
-    if (sentRequests.count(other->Username) || receivedRequests.count(other->Username))
-        return;
+    if (!other || other->Username == Username || friends.contains(other->Username))return;
+    if (sentRequests.count(other->Username) || receivedRequests.count(other->Username)) return;
     sentRequests.insert(other->Username);
     other->receivedRequests.insert(Username);
+    this->saveFriendDataToFile();
+    other->saveFriendDataToFile();
     }
 
     void User::acceptFriendRequest(User* other) {
@@ -76,18 +76,25 @@ public:
 
     friends.insert(other->Username);
     other->friends.insert(Username);
+    this->saveFriendDataToFile();
+    other->saveFriendDataToFile();
+
     }
 
     void User::rejectFriendRequest(User* other) {
     if (!other || !receivedRequests.count(other->Username)) return;
     receivedRequests.erase(other->Username);
     other->sentRequests.erase(Username);
+    this->saveFriendDataToFile();
+    other->saveFriendDataToFile();
     }
 
     void User::cancelFriendRequest(User* other) {
     if (!other || !sentRequests.count(other->Username)) return;
     sentRequests.erase(other->Username);
     other->receivedRequests.erase(Username);
+    this->saveFriendDataToFile();
+    other->saveFriendDataToFile();
 }
 
     void User::removeFriend(User* other) {
@@ -143,6 +150,51 @@ vector<string> User::suggestFriends(const unordered_map<string, User*>& allUsers
     for (auto& [name, _] : scored) suggestions.push_back(name);
     return suggestions;
 }
+
+void User::saveFriendDataToFile() {
+    ofstream f("friends_" + Username + ".txt");
+    for (const string& name : friends.inOrderTraversal())
+        f << name << "\n";
+
+    ofstream r("requests_" + Username + ".txt");
+    for (const string& name : receivedRequests)
+        r << "r:" << name << "\n";
+    for (const string& name : sentRequests)
+        r << "s:" << name << "\n";
+}
+
+void User::loadFriendDataFromFile() {
+    ifstream f("friends_" + Username + ".txt");
+    string name;
+    while (getline(f, name))
+        friends.insert(name);
+
+    ifstream r("requests_" + Username + ".txt");
+    string line;
+    while (getline(r, line)) {
+        if (line.size() < 3) continue; // safety check
+        if (line[0] == 'R')
+            receivedRequests.insert(line.substr(2));
+        else if (line[0] == 'S')
+            sentRequests.insert(line.substr(2));
+    }
+}
+
+vector<string> searchUsersByPrefix(const string& query, const unordered_map<string, User*>& allUsers) const {
+    vector<string> result;
+    for (const auto& [uname, user] : allUsers) {
+        if (uname != Username &&
+            uname.size() >= query.size() &&
+            uname.substr(0, query.size()) == query &&
+            !isFriendWith(uname) &&
+            !hasSentRequestTo(uname) &&
+            !hasReceivedRequestFrom(uname)) {
+            result.push_back(uname);
+        }
+    }
+    return result;
+}
+
 
     // rest of functions will be implemented later
 };

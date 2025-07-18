@@ -306,5 +306,53 @@ CROW_ROUTE(app, "/friends/remove").methods("POST"_method)([&auth](const crow::re
     return crow::response(200);
 });
 
+CROW_ROUTE(app, "/timeline")
+([] {
+    std::ifstream file("UI/timeline.html");
+if (!file.is_open()) return crow::response(404);
+
+std::stringstream buffer;
+buffer << file.rdbuf();
+file.close();
+return crow::response(buffer.str());
+
+});
+
+CROW_ROUTE(app, "/timeline").methods("POST"_method)
+([&auth](const crow::request& req) {
+    auto body = crow::json::load(req.body);
+    if (!body) return crow::response(400);
+    string sessionID = body["sessionID"].s();
+
+    User* user = auth.getUserBySession(sessionID);
+    if (!user) return crow::response(401);
+
+    vector<Post> allPosts = user->getPosts();
+
+    for (const string& friendName : user->getFriendList()) {
+        User* f = auth.getUserByUsername(friendName);
+        if (f) {
+            const auto& theirPosts = f->getPosts();
+            allPosts.insert(allPosts.end(), theirPosts.begin(), theirPosts.end());
+        }
+    }
+
+    sort(allPosts.begin(), allPosts.end(), [](const Post& a, const Post& b) {
+        return a.getTimestamp() > b.getTimestamp();  // newest first
+    });
+
+    crow::json::wvalue res;
+    int i = 0;
+    for (const auto& post : allPosts) {
+    res["posts"][i]["username"] = post.getUsername();
+    res["posts"][i]["content"] = post.getContent();
+    res["posts"][i]["timestamp"] = static_cast<uint64_t>(post.getTimestamp());
+    ++i;
+    }
+
+    return crow::response{res};
+});
+
+
     app.port(18080).multithreaded().run();
 }

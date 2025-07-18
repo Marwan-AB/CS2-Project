@@ -17,4 +17,6 @@ public:
     string getContent() const { return content; }
     string getAuthor() const { return author; }
     time_t getTimestamp() const { return timestamp; }
+    string getUsername() const {return author;}
+
 };

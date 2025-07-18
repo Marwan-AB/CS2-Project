@@ -4,6 +4,12 @@
     <ClCompile Include="C:\dev\MyCrowApp\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\dev\MyCrowApp\User.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\dev\MyCrowApp\Authentication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\dev\MyCrowApp\global.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

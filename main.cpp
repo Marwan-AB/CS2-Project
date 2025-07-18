@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+#include "global.h"
 namespace fs = std::filesystem;
 using namespace std;
 int main() {
@@ -307,20 +308,17 @@ CROW_ROUTE(app, "/friends/remove").methods("POST"_method)([&auth](const crow::re
     return crow::response(200);
 });
 
-CROW_ROUTE(app, "/timeline")
-([] {
+CROW_ROUTE(app, "/timeline")([] {
     std::ifstream file("UI/timeline.html");
-if (!file.is_open()) return crow::response(404);
+    if (!file.is_open()) return crow::response(404);
 
-std::stringstream buffer;
-buffer << file.rdbuf();
-file.close();
-return crow::response(buffer.str());
-
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    file.close();
+    return crow::response(buffer.str());
 });
 
-CROW_ROUTE(app, "/timeline").methods("POST"_method)
-([&auth](const crow::request& req) {
+CROW_ROUTE(app, "/timeline").methods("POST"_method)([&auth](const crow::request& req) {
     auto body = crow::json::load(req.body);
     if (!body) return crow::response(400);
     string sessionID = body["sessionID"].s();
@@ -333,6 +331,7 @@ CROW_ROUTE(app, "/timeline").methods("POST"_method)
     for (const string& friendName : user->getFriendList()) {
         User* f = auth.getUserByUsername(friendName);
         if (f) {
+            f->loadPostsFromFile(); 
             const auto& theirPosts = f->getPosts();
             allPosts.insert(allPosts.end(), theirPosts.begin(), theirPosts.end());
         }
@@ -345,14 +344,15 @@ CROW_ROUTE(app, "/timeline").methods("POST"_method)
     crow::json::wvalue res;
     int i = 0;
     for (const auto& post : allPosts) {
-    res["posts"][i]["username"] = post.getUsername();
-    res["posts"][i]["content"] = post.getContent();
-    res["posts"][i]["timestamp"] = static_cast<uint64_t>(post.getTimestamp());
-    ++i;
+        res["posts"][i]["username"] = post.getUsername();
+        res["posts"][i]["content"] = post.getContent();
+        res["posts"][i]["timestamp"] = static_cast<uint64_t>(post.getTimestamp());
+        ++i;
     }
 
     return crow::response{res};
 });
+
 
 CROW_ROUTE(app, "/notifications").methods("POST"_method)
 ([&auth](const crow::request& req) {

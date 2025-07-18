@@ -70,6 +70,10 @@
             margin-top: 10px;
             color: #ff3860;
         }
+
+        .message.success {
+            color: #23a55a;
+        }
     </style>
 </head>
 <body>
@@ -94,19 +98,35 @@
     </div>
 
     <script>
-        async function postData(url, data) {
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
+        const responseDiv = document.getElementById('response');
 
-            if (res.status === 200) {
-                const json = await res.json();
-                localStorage.setItem("sessionID", json.sessionID); 
-                window.location.href = "/home";
+        async function postData(url, data, isLogin) {
+            responseDiv.classList.remove('success');
+            responseDiv.textContent = "";
+
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    if (isLogin) {
+                        const json = await res.json();
+                        localStorage.setItem("sessionID", json.sessionID);
+                        window.location.href = "/home";
+                    } else {
+                        responseDiv.textContent = "Signup successful. You can now log in.";
+                        responseDiv.classList.add('success');
+                    }
+                } else {
+                    const msg = await res.text();
+                    responseDiv.textContent = msg;
+                }
+            } catch (err) {
+                responseDiv.textContent = "An unexpected error occurred.";
             }
-
         }
 
         document.getElementById('signupForm').addEventListener('submit', function(e) {
@@ -115,7 +135,7 @@
             postData('/signup', {
                 username: form.username.value,
                 password: form.password.value
-            });
+            }, false);
         });
 
         document.getElementById('loginForm').addEventListener('submit', function(e) {
@@ -124,7 +144,7 @@
             postData('/login', {
                 username: form.username.value,
                 password: form.password.value
-            });
+            }, true);
         });
     </script>
 </body>

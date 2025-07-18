@@ -454,8 +454,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="C:\dev\MyCrowApp\main.cpp" />
+    <ClCompile Include="C:\dev\MyCrowApp\User.cpp" />
     <None Include="C:\dev\MyCrowApp\AVLTree.tpp">
     </None>
+    <ClCompile Include="C:\dev\MyCrowApp\Authentication.cpp" />
     <ClCompile Include="C:\dev\MyCrowApp\global.cpp" />
   </ItemGroup>
   <ItemGroup />

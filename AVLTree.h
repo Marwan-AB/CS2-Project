@@ -18,17 +18,6 @@ private:
 
     Node* root;
 
-public:
-    AVLTree();
-    ~AVLTree();
-
-    void insert(const T& key);
-    void remove(const T& key);
-    bool contains(const T& key) const;
-    vector<T> inOrderTraversal() const;
-    vector<T> levelOrderTraversal() const;
-
-private:
     void destroy(Node* node);
     Node* insert(Node* node, const T& key);
     Node* remove(Node* node, const T& key);
@@ -40,6 +29,18 @@ private:
     Node* minValueNode(Node* node);
     void inOrder(Node* node, vector<T>& result) const;
     void levelOrder(Node* node, vector<T>& result) const;
+
+public:
+    AVLTree();
+    ~AVLTree();
+
+    void insert(const T& key);
+    void remove(const T& key);
+    bool contains(const T& key) const;
+    vector<T> inOrderTraversal() const;
+    vector<T> levelOrderTraversal() const;
+    void clear();
+    void clear(Node* node);    
 };
 
 #include "AVLTree.tpp"

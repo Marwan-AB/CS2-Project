@@ -182,3 +182,18 @@ void AVLTree<T>::levelOrder(Node* root, vector<T>& result) const {
         if (n->right) q.push(n->right);
     }
 }
+
+template <typename T>
+void AVLTree<T>::clear() {
+    clear(root);
+    root = nullptr;
+}
+
+template <typename T>
+void AVLTree<T>::clear(Node* node) {
+    if (!node) return;
+    clear(node->left);
+    clear(node->right);
+    delete node;
+}
+

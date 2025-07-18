@@ -6,12 +6,14 @@
 #include <string>
 #include <random>
 
+
 using namespace std;
 
 class Authentication {
 private:
     unordered_map<string, User*> users;
     unordered_map<string, User*> sessions;
+    
 
     string hashPassword(const string& pass) {
         hash<string> hasher;

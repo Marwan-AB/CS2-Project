@@ -6,6 +6,7 @@
 #include <algorithm>
 #include "Post.h"
 #include "AVLTree.h"
+#include "global.h"
 
 using namespace std;
 
@@ -191,20 +192,20 @@ public:
         }
     }
 
-    vector<string> searchUsersByPrefix(const string& query, const unordered_map<string, User*>& allUsers) const {
-        vector<string> result;
-        for (const auto& [uname, user] : allUsers) {
-            if (uname != Username &&
-                uname.size() >= query.size() &&
-                uname.substr(0, query.size()) == query &&
-                !isFriendWith(uname) &&
-                !hasSentRequestTo(uname) &&
-                !hasReceivedRequestFrom(uname)) {
-                result.push_back(uname);
-            }
+    vector<string> searchUsersByPrefix(const string& query) const {
+    vector<string> result;
+    for (string uname : allUsernames.inOrderTraversal()) {
+        if (uname != Username &&
+            uname.size() >= query.size() &&
+            uname.substr(0, query.size()) == query &&
+            !isFriendWith(uname) &&
+            !hasSentRequestTo(uname) &&
+            !hasReceivedRequestFrom(uname)) {
+            result.push_back(uname);
         }
-        return result;
     }
+    return result;
+}
 
     void addNotification(const string& msg) {
     Notifications.push_back(msg);

@@ -456,6 +456,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\dev\MyCrowApp\main.cpp" />
     <None Include="C:\dev\MyCrowApp\AVLTree.tpp">
     </None>
+    <ClCompile Include="C:\dev\MyCrowApp\global.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

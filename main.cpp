@@ -106,7 +106,7 @@ CROW_ROUTE(app, "/add_post").methods("POST"_method)([&auth](const crow::request&
     User* user = auth.getUserBySession(sid);
     if (!user) return crow::response(401, "Unauthorized");
 
-    user->addPost(content);
+    user->addPost(content, auth.getAllUsers());
     return crow::response(200);
 });
 
@@ -168,7 +168,7 @@ CROW_ROUTE(app, "/friends/search").methods("POST"_method)([&auth](const crow::re
         matchList.emplace_back(name);
     }
 
-    res["matches"] = std::move(matchList); // Assign the vector directly
+    res["matches"] = std::move(matchList); 
     return crow::response{res};
 });
 
@@ -302,7 +302,7 @@ CROW_ROUTE(app, "/friends/remove").methods("POST"_method)([&auth](const crow::re
     if (!user || !target) return crow::response(404);
     
     user->removeFriend(target);
-    target->removeFriend(user); // Just in case removeFriend doesn't handle symmetry
+    target->removeFriend(user); 
     return crow::response(200);
 });
 
@@ -338,7 +338,7 @@ CROW_ROUTE(app, "/timeline").methods("POST"_method)
     }
 
     sort(allPosts.begin(), allPosts.end(), [](const Post& a, const Post& b) {
-        return a.getTimestamp() > b.getTimestamp();  // newest first
+        return a.getTimestamp() > b.getTimestamp();  
     });
 
     crow::json::wvalue res;
@@ -351,6 +351,33 @@ CROW_ROUTE(app, "/timeline").methods("POST"_method)
     }
 
     return crow::response{res};
+});
+
+CROW_ROUTE(app, "/notifications").methods("POST"_method)
+([&auth](const crow::request& req) {
+    auto body = crow::json::load(req.body);
+    if (!body) return crow::response(400);
+    string sessionID = body["sessionID"].s();
+
+    User* user = auth.getUserBySession(sessionID);
+    if (!user) return crow::response(401);
+
+    crow::json::wvalue res;
+    int i = 0;
+    for (const string& msg : user->getNotifications()) {
+        res["notifications"][i++] = msg;
+    }
+
+    user->clearNotifications(); 
+    return crow::response(res);
+});
+
+CROW_ROUTE(app, "/notifications")([] {
+    std::ifstream file("UI/notifications.html");
+    if (!file.is_open()) return crow::response(404);
+    std::ostringstream buf;
+    buf << file.rdbuf();
+    return crow::response(buf.str());
 });
 
 

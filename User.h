@@ -37,11 +37,17 @@ public:
         return sessionID;
     }
 
-    void addPost(const string& content) {
+    void addPost(const string& content, const unordered_map<string, User*>& allUsers) {
         Post p(content, Username);
         posts.push_back(p);
         ofstream file("posts_" + Username + ".txt", ios::app);
         file << p.getTimestamp() << "|" << p.getContent() << "\n";
+        for (const string& friendName : friends.inOrderTraversal()) {
+            auto it = allUsers.find(friendName);
+            if (it != allUsers.end() && it->second) {
+                it->second->addNotification(Username + " added a new post.");
+            }
+        }
     }
 
     void loadPostsFromFile() {
@@ -67,6 +73,7 @@ public:
         other->receivedRequests.insert(Username);
         this->saveFriendDataToFile();
         other->saveFriendDataToFile();
+        other->addNotification("You have a new friend request from " + Username);
     }
 
     void acceptFriendRequest(User* other) {
@@ -198,6 +205,19 @@ public:
         }
         return result;
     }
+
+    void addNotification(const string& msg) {
+    Notifications.push_back(msg);
+    }
+
+    vector<string> getNotifications() const {
+        return Notifications;
+    }
+
+    void clearNotifications() {
+        Notifications.clear();
+    }
+
 };
 
 

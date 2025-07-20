@@ -318,36 +318,24 @@ CROW_ROUTE(app, "/timeline")([] {
     return crow::response(buffer.str());
 });
 
-CROW_ROUTE(app, "/timeline").methods("POST"_method)([&auth](const crow::request& req) {
+CROW_ROUTE(app, "/timeline").methods("POST"_method)
+([&auth](const crow::request& req) {
     auto body = crow::json::load(req.body);
-    if (!body) return crow::response(400);
+    if (!body) return crow::response(400, "Invalid JSON");
+
     string sessionID = body["sessionID"].s();
-
     User* user = auth.getUserBySession(sessionID);
-    if (!user) return crow::response(401);
+    if (!user) return crow::response(401, "Unauthorized");
 
-    vector<Post> allPosts = user->getPosts();
+    
+    vector<Post> timeline = user->getTimelinePosts(auth.getAllUsers());
 
-    for (const string& friendName : user->getFriendList()) {
-        User* f = auth.getUserByUsername(friendName);
-        if (f) {
-            f->loadPostsFromFile(); 
-            const auto& theirPosts = f->getPosts();
-            allPosts.insert(allPosts.end(), theirPosts.begin(), theirPosts.end());
-        }
-    }
-
-    sort(allPosts.begin(), allPosts.end(), [](const Post& a, const Post& b) {
-        return a.getTimestamp() > b.getTimestamp();  
-    });
-
+    
     crow::json::wvalue res;
-    int i = 0;
-    for (const auto& post : allPosts) {
-        res["posts"][i]["username"] = post.getUsername();
-        res["posts"][i]["content"] = post.getContent();
-        res["posts"][i]["timestamp"] = static_cast<uint64_t>(post.getTimestamp());
-        ++i;
+    for (size_t i = 0; i < timeline.size(); ++i) {
+        res["posts"][(int)i]["username"] = timeline[i].getUsername();
+        res["posts"][(int)i]["content"] = timeline[i].getContent();
+        res["posts"][(int)i]["timestamp"] = static_cast<uint64_t>(timeline[i].getTimestamp());
     }
 
     return crow::response{res};

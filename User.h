@@ -44,12 +44,13 @@ public:
     bool hasSentRequestTo(const string& uname) const;
     bool hasReceivedRequestFrom(const string& uname) const;
     int mutualFriendCount(User* other) const;
-
     vector<string> suggestFriends(const unordered_map<string, User*>& allUsers) const;
     void saveFriendDataToFile();
     void loadFriendDataFromFile();
-
     vector<string> searchUsersByPrefix(const string& query) const;
+
+    vector<Post> getTimelinePosts(const unordered_map<string, User*>& allUsers);
+
     void addNotification(const string& msg);
     vector<string> getNotifications() const;
     void clearNotifications();

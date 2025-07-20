@@ -189,6 +189,27 @@ vector<string> User::searchUsersByPrefix(const string& query) const {
     return result;
 }
 
+vector<Post> User::getTimelinePosts(const unordered_map<string, User*>& allUsers) {
+    vector<Post> allPosts = posts;
+
+    for (const string& friendName : friends.inOrderTraversal()) {
+        auto it = allUsers.find(friendName);
+        if (it != allUsers.end() && it->second) {
+            User* f = it->second;
+            f->loadPostsFromFile();  
+            const auto& theirPosts = f->getPosts();
+            allPosts.insert(allPosts.end(), theirPosts.begin(), theirPosts.end());
+        }
+    }
+
+    sort(allPosts.begin(), allPosts.end(), [](const Post& a, const Post& b) {
+        return a.getTimestamp() > b.getTimestamp();
+    });
+
+    return allPosts;
+}
+
+
 void User::addNotification(const string& msg) {
     Notifications.push_back(msg);
 }

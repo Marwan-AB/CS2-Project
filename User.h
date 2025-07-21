@@ -47,6 +47,7 @@ public:
     vector<string> suggestFriends(const unordered_map<string, User*>& allUsers) const;
     void saveFriendDataToFile();
     void loadFriendDataFromFile();
+    
     vector<string> searchUsersByPrefix(const string& query) const;
 
     vector<Post> getTimelinePosts(const unordered_map<string, User*>& allUsers);

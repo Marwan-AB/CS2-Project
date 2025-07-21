@@ -15,7 +15,7 @@ void loadAllUsernamesToAVL() {
     while (getline(file, line)) {
         stringstream ss(line);
         string username;
-        if (std::getline(ss, username, ',')) {
+        if (getline(ss, username, ',')) {
             allUsernames.insert(username);
         }
     }
